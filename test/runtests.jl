@@ -13,10 +13,10 @@ using Random: MersenneTwister
 using FiniteDiff: FiniteDiff
 
 @testset "Dito.jl" begin
+    x0 = zeros(4)
     T = 10
     state_dim = 4
     control_dim = 2
-    x0 = zeros(4)
     dynamics = let
         dt = 0.1
         dt2 = dt * dt
@@ -57,10 +57,10 @@ using FiniteDiff: FiniteDiff
                         problem = ParametricTrajectoryOptimizationProblem(
                             parameterization,
                             dynamics,
+                            inequality_constraints,
                             state_dim,
                             control_dim,
                             T,
-                            inequality_constraints,
                         )
                         Optimizer(problem, solver)
                     end

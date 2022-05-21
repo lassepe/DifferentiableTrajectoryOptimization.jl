@@ -1,5 +1,75 @@
-# https://github.com/JuliaLang/julia/issues/31231
+"""
+    ParametricTrajectoryOptimizationProblem(
+        parameterization,
+        dynamics,
+        inequality_constraints,
+        state_dim,
+        control_dim,
+        T,
+    )
+
+Constructs a `ParametricTrajectoryOptimizationProblem` from the given problem data:
+
+- `parameterization` specifies in which way the parameters change the optimziation problem. \
+A parameterization must implement [`parameter_dimension`](@ref) and [`setup_cost`](@ref).
+
+- `dynamics` is callable `dynamics(x, u, t) -> xp` to generate the next state `xp` from the \
+previous state `x`, control `u`, and time `t`. This object is used to *symbolically* generate the \
+dynamics equality constraints via [Symbolics.jl]. Therefore, this function must be \
+sufficiently generic to accept `x` and `u` as `AbstractVector{<:Symbolics.Num}`.
+
+- `inequality_constraints` is callable as `inequality_constraints(xs, us) -> gs` to generate \
+a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` and `us` \
+are the same as for the `dynamics` arguments. If your prolbem has no inequality constraints, set \
+`inequality_constraints = (xs, us) -> Symbolics.Num[]`.
+
+- `state_dim::Integer` is the stagewise dimension of the state.
+
+- `control_dim::Integer` is the stagewise dimension of the control input.
+
+- `T::Integer` is the horizon of the problem
+
+# Note
+
+This function uses `Syombolics.jl` to generate and compile all of the functions,
+gradients, jacobians, and hessians needed to solve a parametric trajectory optimization problem. As
+a result, calls to this contructor are rather expensive and shold be avoided in tight inner loops.
+By contrast, however, solver invokations on the same `ParametricTrajectoryOptimizationProblem` for
+varying parameter values are very fast. Therefore, it is a good idea to choose a parameterization
+that avoids re-construction.
+
+# Example
+
+Below we construct a parametric optimization problem for a 2D integrator with 2 states, 2 inputs
+over a hrizon of 10 stages.
+Additionally, this problem features ±0.1 box constraints on states and inputs.
+
+```@example
+horizon = 10
+state_dim = 2
+control_dim = 2
+dynamics = (x, u, t) -> x + u
+inequality_constraints = let
+    state_constraints = state -> [state .+ 0.1; -state .+ 0.1]
+    control_constraints = control -> [control .+ 0.1; -control .+ 0.1]
+    (xs, us) -> [
+        mapreduce(state_constraints, vcat, xs)
+        mapreduce(control_constraints, vcat, us)
+    ]
+end
+
+problem = ParametricTrajectoryOptimizationProblem(
+    parameterization,
+    dynamics,
+    inequality_constraints,
+    state_dim,
+    control_dim,
+    horizon
+)
+```
+"""
 Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8,T9}
+    # https://github.com/JuliaLang/julia/issues/31231
     parameterization::T1
     T::Int
     n::Int
@@ -17,23 +87,13 @@ Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,
     lag_hess_primals::T9
 end
 
-function parameter_dimension(p::ParametricTrajectoryOptimizationProblem)
-    (; parameterization, T, state_dim, control_dim) = p
-    parameter_dimension(parameterization; state_dim, control_dim, T)
-end
-
-"""
-Compiles all of the functions, gradients, jacobians, and hessians needed to solve a parametric
-trajectory optimization problem (will be parameterized by the initial state of the system,
-and a set of additional parameters which have meaning dictated by 'parameterization')
-"""
 function ParametricTrajectoryOptimizationProblem(
     parameterization,
     dynamics,
+    inequality_constraints,
     state_dim,
     control_dim,
     T,
-    inequality_constraints = (xs, us) -> Symbolics.Num[],
 )
     n = T * (state_dim + control_dim)
     num_equality = nx = T * state_dim
@@ -152,4 +212,9 @@ function ParametricTrajectoryOptimizationProblem(
         cost_hess,
         lag_hess_primals,
     )
+end
+
+function parameter_dimension(p::ParametricTrajectoryOptimizationProblem)
+    (; parameterization, T, state_dim, control_dim) = p
+    parameter_dimension(parameterization; state_dim, control_dim, T)
 end
