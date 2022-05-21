@@ -33,7 +33,6 @@ include("optimizer.jl")
     QPSolver,
     MCPSolver,
     NLPSolver,
-    solve,
     is_thread_safe,
 )
 

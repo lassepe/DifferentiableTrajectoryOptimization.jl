@@ -1,3 +1,15 @@
+"""
+    Optimizer(problem, solver)
+
+Constructs an `Optimizer` for the given `problem` using the specificed `solver` backend.
+
+# Example
+
+```@example running_example
+solver = QPSolver()
+optimizer = Optimizer(problem, solver)
+```
+"""
 struct Optimizer{TP<:ParametricTrajectoryOptimizationProblem,TS}
     problem::TP
     solver::TS
@@ -12,6 +24,14 @@ parameter_dimension(optimizer::Optimizer) = parameter_dimension(optimizer.proble
 
 Generates an optimal trajectory starting from `x0` according to the optimization problem
 parameterized by `params`. This call is differentaible in `params`.
+
+# Example
+
+``` @example running_example
+x0 = zeros(4)
+params = zeros(20)
+solution = optimizer(x0, params)
+```
 """
 function (optimizer::Optimizer)(x0, params)
     sol = solve(optimizer.solver, optimizer.problem, x0, params)

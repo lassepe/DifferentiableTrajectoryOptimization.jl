@@ -1,10 +1,23 @@
+"""
+A solver backend that casts the (potentially nonlinear and non-convex) trajectory optimization
+problem as a mixed complementarity problem (MCP) and solves it via PATH.
+
+The MCP is drived from the KKT conditions of the problem and takes the form
+
+find   z
+s.t.   lᵢ == zᵢ       Fᵢ(z) >= 0
+       lᵢ <  zᵢ <  u, Fᵢ(z) == 0
+             zᵢ == u, Fᵢ(z) <= 0
+
+# Note
+
+The PATH solver is not open source but provides a free license. Without setting a license key,
+this backend only works for small problems. Please consult the documentation of
+[PATHSolver.jl]("https://github.com/chkwon/PATHSolver.jl") to learn about loading the license key.
+"""
 struct MCPSolver end
 is_thread_safe(::MCPSolver) = false
 
-"""
-Solves the (potentially nonlinear and non-convex) trajectory optimization problem by casting the KKT
-system as as a mixed complementarity problem (MCP).
-"""
 function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (; n, parametric_cost, parametric_cost_grad, parametric_cons, jac_primals, lag_hess_primals) =
         problem
@@ -65,7 +78,7 @@ function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:Abstract
             A 0I
         ]
 
-        coo_from_sparse!(col, len, row, data, J)
+        _coo_from_sparse!(col, len, row, data, J)
         Cint(0)
     end
 
@@ -79,16 +92,6 @@ function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:Abstract
     # structual zeros: nnz(J)) = nnz(Q) + 2*nnz(A)
     nnz = length(lag_hess_rows) + 2 * length(jac_rows)
 
-    """
-    PATH solves an MCP of the form
-
-    find   z
-    s.t.   lᵢ == zᵢ       Fᵢ(z) >= 0
-           lᵢ <  zᵢ <  u, Fᵢ(z) == 0
-                 zᵢ == u, Fᵢ(z) <= 0
-
-    Here, `J` is the functional representation of the jacobian to `F`.
-    """
     status, variables, info = PATHSolver.solve_mcp(F, J, lb, ub, z; silent = true, nnz)
 
     (;
@@ -105,7 +108,7 @@ Convert a Julia sparse array `M` into the \
 This implementation has been extracted from \
 [here](https://github.com/chkwon/PATHSolver.jl/blob/8e63723e51833cdbab58c39b6646f8cdf79d74a2/src/C_API.jl#L646)
 """
-function coo_from_sparse!(col, len, row, data, M)
+function _coo_from_sparse!(col, len, row, data, M)
     @assert length(col) == length(len) == size(M, 1)
     @assert length(row) == length(data)
     n = length(col)

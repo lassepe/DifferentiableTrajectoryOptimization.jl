@@ -44,7 +44,7 @@ Below we construct a parametric optimization problem for a 2D integrator with 2 
 over a hrizon of 10 stages.
 Additionally, this problem features ±0.1 box constraints on states and inputs.
 
-```@example
+```@example running_example
 horizon = 10
 state_dim = 2
 control_dim = 2
@@ -57,6 +57,7 @@ inequality_constraints = let
         mapreduce(control_constraints, vcat, us)
     ]
 end
+parameterization = InputReferenceParameterization()
 
 problem = ParametricTrajectoryOptimizationProblem(
     parameterization,

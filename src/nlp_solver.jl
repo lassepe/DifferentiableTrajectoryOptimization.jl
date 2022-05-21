@@ -1,14 +1,14 @@
+"""
+Solves the trajectory optimization problem as NLP using Ipopt.
+
+# Note
+
+This solver is mostely here for historic reasons to provide a fully open-source backend for NLPs.
+For many problems the [`MCPSolver`](@ref) backend using PATH is *much* faster.
+"""
 struct NLPSolver end
 is_thread_safe(::NLPSolver) = true
 
-"""
-Solves nonlinear program:
-NLP(y) := argmin_x f(x,y)
-         s.t.  g_L <= g(x,y) <= g_U
-Additionally provides gradients ∇_y NLP(y)
-
-All functions are functions only of x, evaluated at x and the given value of y
-"""
 function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (;
         horizon,
