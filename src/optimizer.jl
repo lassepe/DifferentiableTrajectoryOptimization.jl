@@ -15,8 +15,8 @@ parameterized by `params`. This call is differentaible in `params`.
 """
 function (optimizer::Optimizer)(x0, params)
     sol = solve(optimizer.solver, optimizer.problem, x0, params)
-    (; T, state_dim, control_dim) = optimizer.problem
-    xs = [[x0]; collect.(eachcol(reshape(sol.primals[1:(T * state_dim)], state_dim, :)))]
-    us = collect.(eachcol(reshape(sol.primals[((T * state_dim) + 1):end], control_dim, :)))
+    (; horizon, state_dim, control_dim) = optimizer.problem
+    xs = [[x0]; collect.(eachcol(reshape(sol.primals[1:(horizon * state_dim)], state_dim, :)))]
+    us = collect.(eachcol(reshape(sol.primals[((horizon * state_dim) + 1):end], control_dim, :)))
     (; xs, us, λs = sol.inequality_duals)
 end

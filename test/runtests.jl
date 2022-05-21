@@ -14,7 +14,7 @@ using FiniteDiff: FiniteDiff
 
 @testset "Dito.jl" begin
     x0 = zeros(4)
-    T = 10
+    horizon = 10
     state_dim = 4
     control_dim = 2
     dynamics = let
@@ -52,7 +52,7 @@ using FiniteDiff: FiniteDiff
                 ("InputReferenceParameterization", InputReferenceParameterization(; α = 10.0)),
             )
                 @testset "$parameterization_name" begin
-                    pdim = parameter_dimension(parameterization; T, state_dim, control_dim)
+                    pdim = parameter_dimension(parameterization; horizon, state_dim, control_dim)
                     optimizer = let
                         problem = ParametricTrajectoryOptimizationProblem(
                             parameterization,
@@ -60,7 +60,7 @@ using FiniteDiff: FiniteDiff
                             inequality_constraints,
                             state_dim,
                             control_dim,
-                            T,
+                            horizon,
                         )
                         Optimizer(problem, solver)
                     end

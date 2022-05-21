@@ -5,7 +5,7 @@
         inequality_constraints,
         state_dim,
         control_dim,
-        T,
+        horizon,
     )
 
 Constructs a `ParametricTrajectoryOptimizationProblem` from the given problem data:
@@ -27,7 +27,7 @@ are the same as for the `dynamics` arguments. If your prolbem has no inequality 
 
 - `control_dim::Integer` is the stagewise dimension of the control input.
 
-- `T::Integer` is the horizon of the problem
+- `horizon::Integer` is the horizon of the problem
 
 # Note
 
@@ -71,7 +71,7 @@ problem = ParametricTrajectoryOptimizationProblem(
 Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8,T9}
     # https://github.com/JuliaLang/julia/issues/31231
     parameterization::T1
-    T::Int
+    horizon::Int
     n::Int
     state_dim::Int
     control_dim::Int
@@ -93,18 +93,18 @@ function ParametricTrajectoryOptimizationProblem(
     inequality_constraints,
     state_dim,
     control_dim,
-    T,
+    horizon,
 )
-    n = T * (state_dim + control_dim)
-    num_equality = nx = T * state_dim
+    n = horizon * (state_dim + control_dim)
+    num_equality = nx = horizon * state_dim
 
     x0, z, p = let
-        pdim = parameter_dimension(parameterization; T, state_dim, control_dim)
+        pdim = parameter_dimension(parameterization; horizon, state_dim, control_dim)
         @variables(x0[1:state_dim], z[1:n], p[1:pdim]) .|> scalarize
     end
 
-    xs = hcat(x0, reshape(z[1:nx], state_dim, T)) |> eachcol |> collect
-    us = reshape(z[(nx + 1):n], control_dim, T) |> eachcol |> collect
+    xs = hcat(x0, reshape(z[1:nx], state_dim, horizon)) |> eachcol |> collect
+    us = reshape(z[(nx + 1):n], control_dim, horizon) |> eachcol |> collect
 
     cost = setup_cost(parameterization, xs, us, p)
     cost_grad = Symbolics.gradient(cost, z)
@@ -197,7 +197,7 @@ function ParametricTrajectoryOptimizationProblem(
 
     ParametricTrajectoryOptimizationProblem(;
         parameterization,
-        T,
+        horizon,
         n,
         state_dim,
         control_dim,
@@ -215,6 +215,6 @@ function ParametricTrajectoryOptimizationProblem(
 end
 
 function parameter_dimension(p::ParametricTrajectoryOptimizationProblem)
-    (; parameterization, T, state_dim, control_dim) = p
-    parameter_dimension(parameterization; state_dim, control_dim, T)
+    (; parameterization, horizon, state_dim, control_dim) = p
+    parameter_dimension(parameterization; state_dim, control_dim, horizon)
 end

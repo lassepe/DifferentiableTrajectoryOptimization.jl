@@ -11,7 +11,7 @@ All functions are functions only of x, evaluated at x and the given value of y
 """
 function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (;
-        T,
+        horizon,
         n,
         parametric_cost,
         parametric_cost_grad,
@@ -77,7 +77,7 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
 
     xinit = zeros(n)
     let xinit = reshape(xinit, length(x0), :)
-        for t in 1:T
+        for t in 1:horizon
             xinit[:, t] = x0
         end
     end

@@ -6,15 +6,8 @@ Solves the (potentially nonlinear and non-convex) trajectory optimization proble
 system as as a mixed complementarity problem (MCP).
 """
 function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
-    (;
-        T,
-        n,
-        parametric_cost,
-        parametric_cost_grad,
-        parametric_cons,
-        jac_primals,
-        lag_hess_primals,
-    ) = problem
+    (; n, parametric_cost, parametric_cost_grad, parametric_cons, jac_primals, lag_hess_primals) =
+        problem
     (; jac_rows, jac_cols, parametric_jac_vals) = jac_primals
     (; lag_hess_rows, lag_hess_cols, parametric_lag_hess_vals) = lag_hess_primals
 
