@@ -27,8 +27,23 @@ pkg> add Dito
 ```
 ## Usage
 
+### Problem Setup
+
+The entry-point for getting started with this package is to set up you problem of choice as an `ParametricOptimizationProblem`.
+
+- TODO:
+    - Describe how to set up the problem. In the simplest case, just inline the docstring here (maybe via Literate.jl?)
+    - Point out that this part performs symbolic differentiation and compiles/builds functions. Therefore, this step is somewhat expensive and should not happen in some inner loop. Anything that needs to change in between iterations should just be moved into the parameterization. Repeatedly solving the same problem with different parameters is fast. (see below)
+
+### Solving The Problem
+
+Given an instance of the `ParametricOptimizationProblem`, you can construct an `Optimizer` for the problem.
+
+### Custom Parameterizations
+
 - TODO: Setting up a `ParametricOptimizationProblem`
 - TODO: Solving the problem using different backends
+- TODO: Implementing custom parameterizations
 
 ## Background
 
