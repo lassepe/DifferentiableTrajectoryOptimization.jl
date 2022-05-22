@@ -15,16 +15,13 @@ using FiniteDiff: FiniteDiff
     horizon = 10
     state_dim = 2
     control_dim = 2
-    dynamics = (x, u, t) -> x + u
+    dynamics = (x, u, t) -> x + 0.01 * u
     inequality_constraints = let
         state_constraints = state -> [state .+ 0.1; -state .+ 0.1]
         control_constraints = control -> [control .+ 0.1; -control .+ 0.1]
         (xs, us) -> [
-            # TODO: fix me! The tests fail if both state and input constraints are active.
-            # Without dual regularization in the objective they also pass with both constraints.
-            # Therefore, this looks like a constraint qualification issue but I don't get why.
-            #mapreduce(state_constraints, vcat, xs);
-            mapreduce(control_constraints, vcat, us);
+            mapreduce(state_constraints, vcat, xs)
+            mapreduce(control_constraints, vcat, us)
         ]
     end
 
@@ -44,9 +41,8 @@ using FiniteDiff: FiniteDiff
     end
 
     for solver in [
-        # TODO: enable all solvers again
-        #NLPSolver(),
-        #QPSolver(),
+        NLPSolver(),
+        QPSolver(),
         MCPSolver(),
     ]
         @testset "$solver" begin
