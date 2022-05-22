@@ -34,7 +34,6 @@ function _solve_pullback(solver, res, problem, x0, params)
     equality[1:num_equality] .= 1
     active = lower_active .| equality
     num_lower_active = sum(lower_active)
-    num_active = num_equality + num_lower_active
 
     A_l_active = A[lower_active, :]
     A_equality = A[equality, :]
@@ -48,7 +47,7 @@ function _solve_pullback(solver, res, problem, x0, params)
 
     M = [
         Q -A_active'
-        A_active zeros(num_active, num_active)
+        A_active 0I
     ]
     N = [R; B_active]
 
@@ -87,12 +86,7 @@ function ChainRulesCore.rrule(::typeof(solve), solver, problem, x0, params)
     res, solve_pullback
 end
 
-function solve(
-    solver,
-    problem,
-    x0,
-    params::AbstractVector{<:ForwardDiff.Dual{T}},
-) where {T}
+function solve(solver, problem, x0, params::AbstractVector{<:ForwardDiff.Dual{T}}) where {T}
     # strip off the duals:
     params_v = ForwardDiff.value.(params)
     params_d = ForwardDiff.partials.(params)
