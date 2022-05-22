@@ -34,6 +34,7 @@ solution = optimizer(x0, params)
 ```
 """
 function (optimizer::Optimizer)(x0, params)
+    @assert length(x0) == optimizer.problem.state_dim
     sol = solve(optimizer.solver, optimizer.problem, x0, params)
     (; horizon, state_dim, control_dim) = optimizer.problem
     xs = [[x0]; collect.(eachcol(reshape(sol.primals[1:(horizon * state_dim)], state_dim, :)))]

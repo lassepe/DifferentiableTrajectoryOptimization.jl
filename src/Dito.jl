@@ -13,7 +13,6 @@ using PATHSolver: PATHSolver
 using PublicAPI: @public
 
 include("utils.jl")
-include("parameterizations.jl")
 include("parametric_optimization_problem.jl")
 
 include("qp_solver.jl")
@@ -26,8 +25,6 @@ include("optimizer.jl")
 @public(
     Optimizer,
     ParametricTrajectoryOptimizationProblem,
-    InputReferenceParameterization,
-    GoalReferenceParameterization,
     parameter_dimension,
     get_constraints_from_box_bounds,
     QPSolver,
