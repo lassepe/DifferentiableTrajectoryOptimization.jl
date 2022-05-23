@@ -1,5 +1,9 @@
 # Dito
 
+[![CI](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/lassepe/Dito.jl/branch/main/graph/badge.svg?token=i1g7Vf5xOY)](https://codecov.io/gh/lassepe/Dito.jl)
+[![License](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
+
 Dito.jl is a package for **Di**fferentiable **T**rajetory **O**ptimization in Julia. It supports both forward and reverse mode differentiation via [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) and [ChainRulesCore.jl](https://github.com/JuliaDiff/ChainRulesCore.jl) and therefore integrates seamlessly with machine learning frameworks such as [Flux.jl](https://github.com/FluxML/Flux.jl).
 
 ---
