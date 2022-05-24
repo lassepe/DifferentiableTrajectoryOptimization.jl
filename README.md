@@ -81,6 +81,16 @@ backend = QPSolver()
 optimizer = Optimizer(problem, backend)
 ```
 
+Currently, Dito supports the following optimization backends:
+
+- `MCPSolver`: Casts trajectory optimizationproblem as a mixed complementarity problem (MCP) and solves it via PATH.
+  - This is the best option nonlinear, non-convex problems. Even for QPs this solver is often as fast as the specialized QP solver.
+  - The PATH solver is not open source but provides a free license. Without setting a license key, this backend only works for small problems. Please consult the documentation of [PATHSolver.jl](https://github.com/chkwon/PATHSolver.jl) to learn about loading the license key.
+- `QPSolver`: Treats the problem as convex QP by linearizing the constraints and quadraticizing the cost a priori. 
+  - If the true problem is not a QP, this solution will not be exact.
+- `NLPSolver`: Solves the trajectory optimization problem as NLP using Ipopt.
+  - This solver is mostely here for historic reasons to provide a fully open-source backend for NLPs. However, for many problems the `MCPSolver` backend using PATH is *much* faster.
+
 ### 3. Solving the Problem
 
 Given an optimizer, we can solve a problem instance for a given initial state `x0` and parameter values `params`.
