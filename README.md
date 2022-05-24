@@ -89,4 +89,11 @@ optimizer(x0, params)
 
 ## Background
 
-- TODO: Mainly just punt to the literature on this. TL;DR: Rather than differentiating the entire (potentially iterative) forward procedure, exploit the [IFT](https://en.wikipedia.org/wiki/Implicit_function_theorem).
+Dito achieves differentiable trajectory optimization by augmenting existing optimization routines with custom derivative rules that apply the [implicit function theorem (IFT)](https://en.wikipedia.org/wiki/Implicit_function_theorem) to the resulting KKT-system.
+Through this formulation, Dito avoids differentiation of the entire (potentially iterative) algorithm, leading to substantially accelerated derivative computation and facilitating differentiation of optimization back-ends that are not written in pure Julia.
+
+The following body of work provides more information about this IFT-based differentiation approach:
+
+- [Ralph, Daniel, and Stephan Dempe. "Directional derivatives of the solution of a parametric nonlinear program." Mathematical programming 70.1 (1995): 159-172.](https://link.springer.com/content/pdf/10.1007/BF01585934.pdf)
+
+- [Amos, Brandon, and J. Zico Kolter. "Optnet: Differentiable optimization as a layer in neural networks." International Conference on Machine Learning. PMLR, 2017.](https://arxiv.org/pdf/1703.00443.pdf)
