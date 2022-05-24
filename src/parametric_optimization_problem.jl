@@ -19,8 +19,9 @@ previous state `x`, control `u`, and time `t`.
 
 - `inequality_constraints` is callable as `inequality_constraints(xs, us) -> gs` to generate \
 a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` and `us` \
-are the same as for the `cost`. If your prolbem has no inequality constraints, set \
-`inequality_constraints = (xs, us, params) -> Symbolics.Num[]`.
+are the same as for the `cost`. Constraints specified in this form will be enforced as `0 <= gs`; \
+i.e., feasible trajectories evalute to non-negative constraints. If your prolbem has no inequality \
+constraints, set `inequality_constraints = (xs, us, params) -> Symbolics.Num[]`.
 
 - `state_dim::Integer` is the stagewise dimension of the state.
 

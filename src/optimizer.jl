@@ -3,11 +3,13 @@
 
 Constructs an `Optimizer` for the given `problem` using the specificed `solver` backend.
 
-Supported backends are
+Supported backends are:
 
 - [`QPSolver`](@ref)
 - [`NLPSolver`](@ref)
 - [`MCPSolver`](@ref)
+
+Please consult their documentation for further information.
 
 # Example
 
@@ -30,6 +32,12 @@ parameter_dimension(optimizer::Optimizer) = parameter_dimension(optimizer.proble
 
 Generates an optimal trajectory starting from `x0` according to the optimization problem
 parameterized by `params`. This call is differentaible in `params`.
+
+The output of this function is layed out as `(; xs, us, λs)` with
+
+- `xs::Vector{<:Vector}`: Vector over time of vector-valued states.
+- `us::Vector{<:Vector}`: Vector over time of vector-valued inputs.
+- `λ::Vector`: Vector of scalar inequlaity-constraint multipliers.
 
 # Example
 
