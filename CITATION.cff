@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Dito.jl
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Lasse
+    family-names: Peters
+    email: l.peters@tudelft.nl
+    affiliation: Delft University of Technology
+    orcid: 'https://orcid.org/0000-0001-9008-7127'
+  - given-names: Forrest
+    family-names: Laine
+    email: forrest.laine@vanderbilt.edu
+    affiliation: Vanderbilt University
+    orcid: 'https://orcid.org/0000-0003-3982-3920'
+  - given-names: David
+    family-names: Fridovich-Keil
+    email: dfk@utexas.edu
+    affiliation: University of Texas at Austin
+    orcid: 'https://orcid.org/0000-0002-5866-6441'
