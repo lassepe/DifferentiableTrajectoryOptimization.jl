@@ -37,7 +37,8 @@ The output of this function is layed out as `(; xs, us, λs)` with
 
 - `xs::Vector{<:Vector}`: Vector over time of vector-valued states.
 - `us::Vector{<:Vector}`: Vector over time of vector-valued inputs.
-- `λ::Vector`: Vector of scalar inequlaity-constraint multipliers.
+- `λ::Vector`: Vector of scalar inequlaity-constraint multipliers. \
+   By our sign convention, all inequality duals are non-negative.
 
 # Example
 
