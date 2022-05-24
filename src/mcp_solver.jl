@@ -13,7 +13,7 @@ s.t.   lᵢ == zᵢ       Fᵢ(z) >= 0
 
 The PATH solver is not open source but provides a free license. Without setting a license key,
 this backend only works for small problems. Please consult the documentation of
-[PATHSolver.jl]("https://github.com/chkwon/PATHSolver.jl") to learn about loading the license key.
+[PATHSolver.jl](https://github.com/chkwon/PATHSolver.jl) to learn about loading the license key.
 """
 struct MCPSolver end
 is_thread_safe(::MCPSolver) = false
