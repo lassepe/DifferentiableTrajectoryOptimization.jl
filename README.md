@@ -32,23 +32,60 @@ pkg> add Dito
 ```
 ## Usage
 
-### Problem Setup
+Below we construct a parametric optimization problem for a 2D integrator with 2 states, 2 inputs
+over a horizon of 10 stages with box constraints on states and inputs.
+
+Please consult the documentation for each of the types below for further information. For example, just type `?ParametricTrajectoryOptimizationProblem` to learn more about the problem setup.
+You can also consult the [tests](test/runtests.jl) as an additional source of implicit documentation.
+
+### 1. Problem Setup
 
 The entry-point for getting started with this package is to set up you problem of choice as an `ParametricTrajectoryOptimizationProblem`.
 
-- TODO: inline `ParametricTrajectoryOptimizationProblem` docstring here if possible
 
-### Solving The Problem
+```julia
+horizon = 10
+state_dim = 2
+control_dim = 2
+cost = (xs, us, params) -> sum(sum((x - params).^2) + sum(u.^2) for (x, u) in zip(xs, us))
+dynamics = (x, u, t) -> x + u
+inequality_constraints = let
+    state_constraints = state -> [state .+ 0.1; -state .+ 0.1]
+    control_constraints = control -> [control .+ 0.1; -control .+ 0.1]
+    (xs, us) -> [
+        mapreduce(state_constraints, vcat, xs)
+        mapreduce(control_constraints, vcat, us)
+    ]
+end
+
+problem = ParametricTrajectoryOptimizationProblem(
+    cost,
+    dynamics,
+    inequality_constraints,
+    state_dim,
+    control_dim,
+    horizon
+)
+
+```
+
+### 2. Optimizer Setup
 
 Given an instance of the `ParametricTrajectoryOptimizationProblem`, you can construct an `Optimizer` for the problem.
 
-- TODO: inline `Optimizer` docstring here.
+```julia
+backend = QPSolver()
+optimizer = Optimizer(problem, backend)
+```
 
-### Custom Parameterizations
+### 3. Solving the Problem
 
-- TODO: Setting up a `ParametricTrajectoryOptimizationProblem`
-- TODO: Solving the problem using different backends
-- TODO: Implementing custom parameterizations
+Given an optimizer, we can solve a problem instance for a given initial state `x0` and parameter values `params`.
+
+```julia
+x0 = zeros(state_dim)
+optimizer(x0, params)
+```
 
 ## Background
 
