@@ -1,4 +1,4 @@
-# Dito
+# Dito.jl
 
 [![CI](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/lassepe/Dito.jl/branch/main/graph/badge.svg?token=i1g7Vf5xOY)](https://codecov.io/gh/lassepe/Dito.jl)
