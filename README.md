@@ -47,9 +47,10 @@ The entry-point for getting started with this package is to set up you problem o
 
 
 ```julia
+using Dito
+
 horizon = 10
-state_dim = 2
-control_dim = 2
+state_dim = control_dim = parameter_dim = 2
 cost = (xs, us, params) -> sum(sum((x - params).^2) + sum(u.^2) for (x, u) in zip(xs, us))
 dynamics = (x, u, t) -> x + u
 inequality_constraints = let
@@ -67,6 +68,7 @@ problem = ParametricTrajectoryOptimizationProblem(
     inequality_constraints,
     state_dim,
     control_dim,
+    parameter_dim,
     horizon
 )
 
@@ -97,6 +99,7 @@ Given an optimizer, we can solve a problem instance for a given initial state `x
 
 ```julia
 x0 = zeros(state_dim)
+params = randn(2)
 optimizer(x0, params)
 ```
 
