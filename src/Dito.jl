@@ -1,5 +1,3 @@
-__precompile__(false)
-
 module Dito
 
 using ChainRulesCore: ChainRulesCore, NoTangent, ProjectTo, @thunk
