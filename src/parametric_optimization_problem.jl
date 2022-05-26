@@ -135,7 +135,7 @@ function ParametricTrajectoryOptimizationProblem(
     λ, cost_scaling, constraint_penalty_scaling = let
         @variables(λ[1:num_constraints], cost_scaling, constraint_penalty_scaling) .|> scalarize
     end
-    lag = cost_scaling * cost_val + constraint_penalty_scaling - λ' * constraints_val
+    lag = cost_scaling * cost_val - constraint_penalty_scaling * λ' * constraints_val
 
     lag_hess = Symbolics.sparsejacobian(Symbolics.gradient(lag, z), z)
     expression = Val{false}
