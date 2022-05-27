@@ -11,9 +11,9 @@ Dito.jl is a package for **Di**fferentiable **T**rajetory **O**ptimization in Ju
 A substantial part of machine learning (ML) algorithms relies upon the ability to propagate gradient signals through the entire learning pipeline.
 Traditionally, such models have been mostly limited to artificial neural networks and "simple" analytic functions.
 Recent work has focused on extending the class of admissible models for gradient-based learning by making all sorts of procedures differentiable.
-These efforts range from [differentiable physics engines](https://arxiv.org/pdf/2103.16021.pdf) over [differentiable rendering](https://arxiv.org/pdf/2006.12057.pdf?ref=https://githubhelp.com) to [differentiable optimzation](https://arxiv.org/pdf/1703.00443.pdf).
+These efforts range from [differentiable physics engines](https://arxiv.org/pdf/2103.16021.pdf) over [differentiable rendering](https://arxiv.org/pdf/2006.12057.pdf?ref=https://githubhelp.com) to [differentiable optimization](https://arxiv.org/pdf/1703.00443.pdf).
 
-Dito.jl focus on a special case of the latter category, differentiable trajectory optimization.
+Dito.jl focuses on a special case of the latter category, differentiable trajectory optimization.
 As such, Dito algorithmically provides a (local) answer to the question:
 
 > *"How does the optimal solution of an inequality constrained trajectory optimization problem change if the problem changes?"*.
