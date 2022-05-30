@@ -24,7 +24,7 @@ Since this component has proven to be very useful in that context, we have since
 
 ## Installation
 
-To install Dito, imply add it via Julia's package manage from the REPL:
+To install Dito, simply add it via Julia's package manage from the REPL:
 
 ```julia
 # hit `]` to enter "pkg"-mode of the REPL
