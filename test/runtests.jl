@@ -1,4 +1,4 @@
-using Dito:
+using DifferentiableTrajectoryOptimization:
     Optimizer,
     ParametricTrajectoryOptimizationProblem,
     NLPSolver,
@@ -10,7 +10,7 @@ using Zygote: Zygote
 using Random: MersenneTwister
 using FiniteDiff: FiniteDiff
 
-@testset "Dito.jl" begin
+@testset "DifferentiableTrajectoryOptimization.jl" begin
     x0 = zeros(2)
     horizon = 10
     state_dim = 2

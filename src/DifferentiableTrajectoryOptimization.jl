@@ -1,4 +1,4 @@
-module Dito
+module DifferentiableTrajectoryOptimization
 
 using ChainRulesCore: ChainRulesCore, NoTangent, ProjectTo, @thunk
 using Symbolics: Symbolics, @variables, scalarize

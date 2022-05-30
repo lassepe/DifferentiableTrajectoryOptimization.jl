@@ -1,10 +1,10 @@
-# Dito.jl
+# DifferentiableTrajectoryOptimization.jl (Dito)
 
-[![CI](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/lassepe/Dito.jl/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/lassepe/Dito.jl/branch/main/graph/badge.svg?token=i1g7Vf5xOY)](https://codecov.io/gh/lassepe/Dito.jl)
+[![CI](https://github.com/lassepe/DifferentiableTrajectoryOptimization.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/lassepe/DifferentiableTrajectoryOptimization.jl/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/lassepe/DifferentiableTrajectoryOptimization.jl/branch/main/graph/badge.svg?token=i1g7Vf5xOY)](https://codecov.io/gh/lassepe/DifferentiableTrajectoryOptimization.jl)
 [![License](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
-Dito.jl is a package for **Di**fferentiable **T**rajetory **O**ptimization in Julia. It supports both forward and reverse mode differentiation via [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) and [ChainRulesCore.jl](https://github.com/JuliaDiff/ChainRulesCore.jl) and therefore integrates seamlessly with machine learning frameworks such as [Flux.jl](https://github.com/FluxML/Flux.jl).
+DifferentiableTrajectoryOptimization.jl (Dito for short) is a package for **Di**fferentiable **T**rajetory **O**ptimization in Julia. It supports both forward and reverse mode differentiation via [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) and [ChainRulesCore.jl](https://github.com/JuliaDiff/ChainRulesCore.jl) and therefore integrates seamlessly with machine learning frameworks such as [Flux.jl](https://github.com/FluxML/Flux.jl).
 
 ---
 
@@ -13,7 +13,7 @@ Traditionally, such models have been mostly limited to artificial neural network
 Recent work has focused on extending the class of admissible models for gradient-based learning by making all sorts of procedures differentiable.
 These efforts range from [differentiable physics engines](https://arxiv.org/pdf/2103.16021.pdf) over [differentiable rendering](https://arxiv.org/pdf/2006.12057.pdf?ref=https://githubhelp.com) to [differentiable optimization](https://arxiv.org/pdf/1703.00443.pdf).
 
-Dito.jl focuses on a special case of the latter category, differentiable trajectory optimization.
+Dito focuses on a special case of the latter category, differentiable trajectory optimization.
 As such, Dito algorithmically provides a (local) answer to the question:
 
 > *"How does the optimal solution of an inequality constrained trajectory optimization problem change if the problem changes?"*.
@@ -25,13 +25,13 @@ Since this component has proven to be very useful in that context, we have since
 ## Installation
 
 > :warning: This package's registration is currently still awaiting approval [here](https://github.com/JuliaRegistries/General/pull/60893). Until registration is complete, you will have to add the package directly via the repo URL:
-> `pkg> add https://github.com/lassepe/Dito.jl`
+> `pkg> add https://github.com/lassepe/DifferentiableTrajectoryOptimization.jl`
 
 To install Dito, imply add it via Julia's package manage from the REPL:
 
 ```julia
 # hit `]` to enter "pkg"-mode of the REPL
-pkg> add Dito
+pkg> add DifferentiableTrajectoryOptimization
 ```
 ## Usage
 
@@ -47,7 +47,7 @@ The entry-point for getting started with this package is to set up you problem o
 
 
 ```julia
-using Dito
+using DifferentiableTrajectoryOptimization as Dito
 
 horizon = 10
 state_dim = control_dim = parameter_dim = 2
@@ -85,10 +85,10 @@ optimizer = Optimizer(problem, backend)
 
 Currently, Dito supports the following optimization backends:
 
-- `MCPSolver`: Casts trajectory optimizationproblem as a mixed complementarity problem (MCP) and solves it via PATH.
+- `MCPSolver`: Casts trajectory optimization problem as a mixed complementarity problem (MCP) and solves it via PATH.
   - This is the best option for nonlinear, non-convex problems. Even for QPs this solver is often as fast as the specialized QP solver.
   - The PATH solver is not open source but provides a free license. Without setting a license key, this backend only works for small problems. Please consult the documentation of [PATHSolver.jl](https://github.com/chkwon/PATHSolver.jl) to learn about loading the license key.
-- `QPSolver`: Treats the problem as convex QP by linearizing the constraints and quadraticizing the cost a priori. 
+- `QPSolver`: Treats the problem as convex QP by linearizing the constraints and quadraticizing the cost a priori.
   - If the true problem is not a QP, this solution will not be exact.
 - `NLPSolver`: Solves the trajectory optimization problem as NLP using Ipopt.
   - This solver is mostely here for historic reasons to provide a fully open-source backend for NLPs. However, for many problems the `MCPSolver` backend using PATH is *much* faster.
