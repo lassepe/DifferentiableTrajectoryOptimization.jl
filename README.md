@@ -24,9 +24,6 @@ Since this component has proven to be very useful in that context, we have since
 
 ## Installation
 
-> :warning: This package's registration is currently still awaiting approval [here](https://github.com/JuliaRegistries/General/pull/60893). Until registration is complete, you will have to add the package directly via the repo URL:
-> `pkg> add https://github.com/lassepe/DifferentiableTrajectoryOptimization.jl`
-
 To install Dito, imply add it via Julia's package manage from the REPL:
 
 ```julia
