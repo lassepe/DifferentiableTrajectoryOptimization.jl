@@ -17,11 +17,11 @@ sequence of states `xs` and control inputs `us` for a parameter vector `params`.
 - `dynamics` is callable as `dynamics(x, u, t) -> xp` to generate the next state `xp` from the \
 previous state `x`, control `u`, and time `t`.
 
-- `inequality_constraints` is callable as `inequality_constraints(xs, us) -> gs` to generate \
-a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` and `us` \
-are the same as for the `cost`. Constraints specified in this form will be enforced as `0 <= gs`; \
-i.e., feasible trajectories evalute to non-negative constraints. If your prolbem has no inequality \
-constraints, set `inequality_constraints = (xs, us, params) -> Symbolics.Num[]`.
+- `inequality_constraints` is callable as `inequality_constraints(xs, us, params) -> gs` to \
+generate a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` \
+and `us` are the same as for the `cost`. Constraints specified in this form will be enforced as \
+`0 <= gs`; i.e., feasible trajectories evalute to non-negative constraints. If your prolbem has \
+no inequality constraints, set `inequality_constraints = (xs, us, params) -> Symbolics.Num[]`.
 
 - `state_dim::Integer` is the stagewise dimension of the state.
 
@@ -55,7 +55,7 @@ dynamics = (x, u, t) -> x + u
 inequality_constraints = let
     state_constraints = state -> [state .+ 0.1; -state .+ 0.1]
     control_constraints = control -> [control .+ 0.1; -control .+ 0.1]
-    (xs, us) -> [
+    (xs, us, params) -> [
         mapreduce(state_constraints, vcat, xs)
         mapreduce(control_constraints, vcat, us)
     ]
@@ -120,7 +120,7 @@ function ParametricTrajectoryOptimizationProblem(
     for t in eachindex(us)
         append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1])
     end
-    append!(constraints_val, inequality_constraints(xs[2:end], us))
+    append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 
     num_inequality = length(constraints_val) - num_equality
 
