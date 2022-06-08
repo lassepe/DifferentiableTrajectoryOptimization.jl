@@ -19,7 +19,7 @@ using FiniteDiff: FiniteDiff
     inequality_constraints = let
         state_constraints = state -> [state .+ 0.1; -state .+ 0.1]
         control_constraints = control -> [control .+ 0.1; -control .+ 0.1]
-        (xs, us) -> [
+        (xs, us, params) -> [
             mapreduce(state_constraints, vcat, xs)
             mapreduce(control_constraints, vcat, us)
         ]
