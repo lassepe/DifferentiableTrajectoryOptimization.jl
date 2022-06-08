@@ -120,7 +120,7 @@ function ParametricTrajectoryOptimizationProblem(
     for t in eachindex(us)
         append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1])
     end
-    append!(constraints_val, inequality_constraints(xs[2:end], us, params))
+    append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 
     num_inequality = length(constraints_val) - num_equality
 
