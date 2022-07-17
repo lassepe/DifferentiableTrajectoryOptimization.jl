@@ -51,7 +51,7 @@ function _solve_pullback(solver, res, problem, x0, params)
     ]
     N = [R; B_active]
 
-    MinvN = (qr(-Matrix(M), ColumnNorm()) \ Matrix(N))
+    MinvN = qr(-M) \ Matrix(N)
     ∂x∂y = MinvN[1:n, :]
     ∂duals∂y = spzeros(length(inequality_duals), length(params))
     ∂duals∂y[lower_active_map, :] .= let
