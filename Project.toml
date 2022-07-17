@@ -1,7 +1,7 @@
 name = "DifferentiableTrajectoryOptimization"
 uuid = "86fad55d-71c6-41a1-96ed-88d107dcd2ba"
 authors = ["David Fridovich-Keil <dfk@utexas.edu>", "Forrest Laine <forrest.laine@vanderbilt.edu", "Lasse Peters <lasse.peters@mailbox.org>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
