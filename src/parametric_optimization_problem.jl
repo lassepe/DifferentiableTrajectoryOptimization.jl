@@ -14,8 +14,9 @@ Constructs a `ParametricTrajectoryOptimizationProblem` from the given problem da
 - `cost` is callable as `cost(xs, us, params) -> c` to compute objective value for a given \
 sequence of states `xs` and control inputs `us` for a parameter vector `params`.
 
-- `dynamics` is callable as `dynamics(x, u, t) -> xp` to generate the next state `xp` from the \
-previous state `x`, control `u`, and time `t`.
+- `dynamics` is callable as `dynamics(x, u, t [, params]) -> xp` to generate the next state `xp` \
+from the previous state `x`, control `u`, time `t` and optional parameters `params`.  See \
+`parameterize_dynamics` for toggling the optional parameter vector.
 
 - `inequality_constraints` is callable as `inequality_constraints(xs, us, params) -> gs` to \
 generate a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` \
@@ -29,16 +30,26 @@ no inequality constraints, set `inequality_constraints = (xs, us, params) -> Sym
 
 - `horizon::Integer` is the horizon of the problem
 
+- `parameterize_dynamics` controls the optional `params` argument handed to dynamics. This flag is \
+disabled by default. When set to `true`, `dynamics` are called as `dynamics(x, u, t, params)`
+instead of `dynamics(x, u, t)`. Note that *all* parameters are handed to the dynamics call
+
 # Note
 
 This function uses `Syombolics.jl` to compile all of the functions, gradients, jacobians, and
 hessians needed to solve a parametric trajectory optimization problem. Therfore, all callables above
 must be sufficiently generic to accept `Syombolics.Num`-valued arguments.
 
-Since the setup procedure invovles code-generation, calls to this contructor are rather expensive
+Since the setup procedure involves code-generation, calls to this contructor are rather expensive
 and shold be avoided in tight inner loops. By contrast, repeated solver invokations on the same
 `ParametricTrajectoryOptimizationProblem` for varying parameter values are very fast. Therefore, it
 is a good idea to choose a parameterization that avoids re-construction.
+
+Furthermore, note that the *entire* parameter vector is handed to `costs`, `dyanmics`, and
+`inequality_constraints`. This allows parameters to be shared between multiple calls. For example,
+a parameter that controlls the collision avoidance radius may apear both in the cost and
+constraints. It's the users responsibility to correctly index into the `params` vector to extract
+the desired parameters for each call.
 
 # Example
 
@@ -97,7 +108,8 @@ function ParametricTrajectoryOptimizationProblem(
     state_dim,
     control_dim,
     parameter_dim,
-    horizon,
+    horizon;
+    parameterize_dynamics = false
 )
     n = horizon * (state_dim + control_dim)
     num_equality = nx = horizon * state_dim
@@ -117,8 +129,9 @@ function ParametricTrajectoryOptimizationProblem(
     constraints_val = Symbolics.Num[]
     # NOTE: The dynamics constraints **must** always be first since the backward pass exploits this
     # structure to more easily identify active constraints.
+    dynamic_extra_args = parameterize_dynamics ? tuple(p) : tuple()
     for t in eachindex(us)
-        append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1])
+        append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1], dynamic_extra_args...)
     end
     append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 
