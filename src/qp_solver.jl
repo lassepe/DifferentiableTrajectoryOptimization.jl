@@ -13,7 +13,6 @@ the objective. Therefore, if the problem is not a QP then this solution is not e
 """
 struct QPSolver end
 is_thread_safe(::QPSolver) = true
-_internal_sign_convention(::QPSolver) = -1
 
 """
 Solves quadratic program:
@@ -62,7 +61,7 @@ function solve(::QPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
 
     (;
         primals = results.x,
-        equality_duals = results.y[1:(problem.num_equality)],
+        equality_duals = -results.y[1:(problem.num_equality)],
         inequality_duals = -results.y[(problem.num_equality + 1):end],
     )
 end

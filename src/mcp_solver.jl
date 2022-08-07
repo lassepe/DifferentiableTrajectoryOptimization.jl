@@ -17,7 +17,6 @@ this backend only works for small problems. Please consult the documentation of
 """
 struct MCPSolver end
 is_thread_safe(::MCPSolver) = false
-_internal_sign_convention(::MCPSolver) = 1
 
 function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (; n, parametric_cost, parametric_cost_grad, parametric_cons, jac_primals, lag_hess_primals) =

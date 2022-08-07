@@ -8,7 +8,6 @@ For many problems the [`MCPSolver`](@ref) backend using PATH is *much* faster.
 """
 struct NLPSolver end
 is_thread_safe(::NLPSolver) = true
-_internal_sign_convention(::NLPSolver) = -1
 
 function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (;
@@ -58,7 +57,8 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
                 primals,
                 λ,
                 α,
-                _internal_sign_convention(solver),
+                # IPOPT has a flipped internal sign convention
+                -1.0,
             )
         end
         nothing
@@ -97,7 +97,7 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
 
     (;
         primals = prob.x,
-        equality_duals = prob.mult_g[1:(problem.num_equality)],
+        equality_duals = -prob.mult_g[1:(problem.num_equality)],
         inequality_duals = -prob.mult_g[(problem.num_equality + 1):end],
     )
 end

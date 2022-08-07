@@ -13,27 +13,11 @@ function _solve_pullback(solver, res, problem, x0, params)
     duals = [equality_duals; inequality_duals]
 
     Qvals = zeros(size(lag_hess_rows, 1))
-    parametric_lag_hess_vals(
-        Qvals,
-        x0,
-        params,
-        primals,
-        duals,
-        1.0,
-        _internal_sign_convention(solver),
-    )
+    parametric_lag_hess_vals(Qvals, x0, params, primals, duals, 1.0, 1.0)
     Q = sparse(lag_hess_rows, lag_hess_cols, Qvals, n, n)
 
     Rvals = zeros(size(lag_jac_rows, 1))
-    parametric_lag_jac_vals(
-        Rvals,
-        x0,
-        params,
-        primals,
-        duals,
-        1.0,
-        _internal_sign_convention(solver),
-    )
+    parametric_lag_jac_vals(Rvals, x0, params, primals, duals, 1.0, 1.0)
     R = sparse(lag_jac_rows, lag_jac_cols, Rvals, n, l)
 
     Avals = zeros(size(jac_rows, 1))
