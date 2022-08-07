@@ -131,7 +131,7 @@ function ParametricTrajectoryOptimizationProblem(
     # structure to more easily identify active constraints.
     dynamic_extra_args = parameterize_dynamics ? tuple(p) : tuple()
     for t in eachindex(us)
-        append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1], dynamic_extra_args...)
+        append!(constraints_val, dynamics(xs[t], us[t], t, dynamic_extra_args...) .- xs[t + 1])
     end
     append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 
