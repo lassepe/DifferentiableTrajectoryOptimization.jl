@@ -129,9 +129,9 @@ function ParametricTrajectoryOptimizationProblem(
     constraints_val = Symbolics.Num[]
     # NOTE: The dynamics constraints **must** always be first since the backward pass exploits this
     # structure to more easily identify active constraints.
-    dynamic_extra_args = parameterize_dynamics ? tuple(p) : tuple()
+    dynamics_parameterized = parameterize_dynamics ? dynamics : (x, u, t, _) -> dynamics(x, u, t)
     for t in eachindex(us)
-        append!(constraints_val, dynamics(xs[t], us[t], t, dynamic_extra_args...) .- xs[t + 1])
+        append!(constraints_val, dynamics_parameterized(xs[t], us[t], t, p) .- xs[t + 1])
     end
     append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 

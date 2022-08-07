@@ -13,12 +13,13 @@ using FiniteDiff: FiniteDiff
 using Infiltrator # TODO: revert
 
 @testset "DifferentiableTrajectoryOptimization.jl" begin
+    δt = 0.01
     x0 = zeros(2)
     horizon = 10
     state_dim = 2
     control_dim = 2
-    dynamics = function (x, u, t, params)
-        δt = last(params)
+    dynamics = function (x, u, t, params = 0.01)
+        local δt = last(params)
         x + δt * u
     end
     inequality_constraints = let
@@ -47,15 +48,16 @@ using Infiltrator # TODO: revert
     end
 
     for solver in [
-        NLPSolver(),
-        QPSolver(),
+        #    NLPSolver(),
+        #    QPSolver(),
         MCPSolver(),
     ]
         @testset "$solver" begin
-            for (cost, parameter_dim) in
-                [(goal_reference_cost, 3), (input_reference_cost, (2 * horizon + 1))]
-
-                trivial_params = [zeros(parameter_dim - 1); 0.01]
+            for (cost, parameter_dim) in [
+                (goal_reference_cost, 3),
+                #(input_reference_cost, (2 * horizon + 1))
+            ]
+                trivial_params = [zeros(parameter_dim - 1); δt]
 
                 @testset "$cost" begin
                     optimizer = let
@@ -67,7 +69,7 @@ using Infiltrator # TODO: revert
                             control_dim,
                             parameter_dim,
                             horizon;
-                            parameterize_dynamics = true
+                            parameterize_dynamics = true,
                         )
                         Optimizer(problem, solver)
                     end
@@ -93,7 +95,7 @@ using Infiltrator # TODO: revert
                         end,
                         for (mode, f) in [
                             ("reverse mode", objective),
-                            ("forward mode", params -> Zygote.forwarddiff(objective, params)),
+                            #("forward mode", params -> Zygote.forwarddiff(objective, params)),
                         ]
                             @testset "$mode" begin
                                 @testset "trivial" begin
@@ -112,7 +114,7 @@ using Infiltrator # TODO: revert
                                     rng = MersenneTwister(0)
                                     for _ in 1:1 # TODO: revert
                                         @test let
-                                            params = [10 * randn(rng, parameter_dim - 1); 0.01]
+                                            params = [10 * randn(rng, parameter_dim - 1); δt]
                                             ∇ = Zygote.gradient(f, params) |> only
                                             ∇_fd = FiniteDiff.finite_difference_gradient(f, params)
                                             success = isapprox(∇, ∇_fd; atol = 1e-3)
