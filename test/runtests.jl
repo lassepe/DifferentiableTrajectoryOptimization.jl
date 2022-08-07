@@ -10,8 +10,6 @@ using Zygote: Zygote
 using Random: MersenneTwister
 using FiniteDiff: FiniteDiff
 
-using Infiltrator # TODO: revert
-
 @testset "DifferentiableTrajectoryOptimization.jl" begin
     δt = 0.01
     x0 = zeros(2)
@@ -47,16 +45,10 @@ using Infiltrator # TODO: revert
         end
     end
 
-    for solver in [
-        #    NLPSolver(),
-        #    QPSolver(),
-        MCPSolver(),
-    ]
+    for solver in [NLPSolver(), QPSolver(), MCPSolver()]
         @testset "$solver" begin
-            for (cost, parameter_dim) in [
-                (goal_reference_cost, 3),
-                #(input_reference_cost, (2 * horizon + 1))
-            ]
+            for (cost, parameter_dim) in
+                [(goal_reference_cost, 3), (input_reference_cost, (2 * horizon + 1))]
                 trivial_params = [zeros(parameter_dim - 1); δt]
 
                 @testset "$cost" begin
@@ -88,14 +80,11 @@ using Infiltrator # TODO: revert
                     @testset "ad" begin
                         function objective(params)
                             xs, us, λs = optimizer(x0, params)
-                            #Zygote.ignore() do # TODO: revert
-                            #    @test all(>=(-1e-9), λs)
-                            #end
                             sum(sum(x .^ 2) for x in xs) + sum(sum(λ .^ 2) for λ in λs)
                         end,
                         for (mode, f) in [
                             ("reverse mode", objective),
-                            #("forward mode", params -> Zygote.forwarddiff(objective, params)),
+                            ("forward mode", params -> Zygote.forwarddiff(objective, params)),
                         ]
                             @testset "$mode" begin
                                 @testset "trivial" begin
@@ -112,14 +101,12 @@ using Infiltrator # TODO: revert
 
                                 @testset "random" begin
                                     rng = MersenneTwister(0)
-                                    for _ in 1:1 # TODO: revert
+                                    for _ in 1:10
                                         @test let
                                             params = [10 * randn(rng, parameter_dim - 1); δt]
                                             ∇ = Zygote.gradient(f, params) |> only
                                             ∇_fd = FiniteDiff.finite_difference_gradient(f, params)
-                                            success = isapprox(∇, ∇_fd; atol = 1e-3)
-                                            @infiltrate !success # TODO: revert
-                                            success
+                                            isapprox(∇, ∇_fd; atol = 1e-3, rtol = 1e-2)
                                         end
                                     end
                                 end

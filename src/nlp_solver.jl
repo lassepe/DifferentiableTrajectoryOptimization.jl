@@ -8,6 +8,7 @@ For many problems the [`MCPSolver`](@ref) backend using PATH is *much* faster.
 """
 struct NLPSolver end
 is_thread_safe(::NLPSolver) = true
+_internal_sign_convention(::NLPSolver) = -1
 
 function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     (;
@@ -50,7 +51,15 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
             rows .= lag_hess_rows
             cols .= lag_hess_cols
         else
-            parametric_lag_hess_vals(values, x0, params, primals, λ, α, -1)
+            parametric_lag_hess_vals(
+                values,
+                x0,
+                params,
+                primals,
+                λ,
+                α,
+                _internal_sign_convention(solver),
+            )
         end
         nothing
     end

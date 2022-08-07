@@ -13,6 +13,7 @@ the objective. Therefore, if the problem is not a QP then this solution is not e
 """
 struct QPSolver end
 is_thread_safe(::QPSolver) = true
+_internal_sign_convention(::QPSolver) = -1
 
 """
 Solves quadratic program:

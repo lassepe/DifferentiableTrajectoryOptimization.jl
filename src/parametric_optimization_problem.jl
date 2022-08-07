@@ -82,7 +82,7 @@ problem = ParametricTrajectoryOptimizationProblem(
 )
 ```
 """
-Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8}
+Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8,T9}
     # https://github.com/JuliaLang/julia/issues/31231
     horizon::Int
     n::Int
@@ -99,6 +99,7 @@ Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,
     jac_params::T6
     cost_hess::T7
     lag_hess_primals::T8
+    lag_jac_params::T9
 end
 
 function ParametricTrajectoryOptimizationProblem(
@@ -109,7 +110,7 @@ function ParametricTrajectoryOptimizationProblem(
     control_dim,
     parameter_dim,
     horizon;
-    parameterize_dynamics = false
+    parameterize_dynamics = false,
 )
     n = horizon * (state_dim + control_dim)
     num_equality = nx = horizon * state_dim
@@ -149,10 +150,13 @@ function ParametricTrajectoryOptimizationProblem(
         @variables(λ[1:num_constraints], cost_scaling, constraint_penalty_scaling) .|> scalarize
     end
     lag = cost_scaling * cost_val - constraint_penalty_scaling * λ' * constraints_val
+    lag_grad = Symbolics.gradient(lag, z)
 
-    lag_hess = Symbolics.sparsejacobian(Symbolics.gradient(lag, z), z)
+    lag_hess = Symbolics.sparsejacobian(lag_grad, z)
+    lag_jac = Symbolics.sparsejacobian(lag_grad, p)
     expression = Val{false}
     (lag_hess_rows, lag_hess_cols, hess_vals) = findnz(lag_hess)
+    (lag_jac_rows, lag_jac_cols, lag_jac_vals) = findnz(lag_jac)
 
     parametric_cost = let
         cost_fn = Symbolics.build_function(cost_val, [p; z]; expression)
@@ -206,10 +210,24 @@ function ParametricTrajectoryOptimizationProblem(
             )
     end
 
+    parametric_lag_jac_vals = let
+        ∇lac_jac_vals_fn! = Symbolics.build_function(
+            lag_jac_vals,
+            vcat(x0, p, z, λ, cost_scaling, constraint_penalty_scaling);
+            expression,
+        )[2]
+        (vals, x0, params, primals, duals, cost_scaling, constraint_penalty_scaling) ->
+            ∇lac_jac_vals_fn!(
+                vals,
+                vcat(x0, params, primals, duals, cost_scaling, constraint_penalty_scaling),
+            )
+    end
+
     parametric_cost_jac = (; cost_jac_rows, cost_jac_cols, parametric_cost_jac_vals)
     jac_primals = (; jac_rows, jac_cols, parametric_jac_vals)
     jac_params = (; jac_p_rows, jac_p_cols, parametric_jac_p_vals)
     lag_hess_primals = (; lag_hess_rows, lag_hess_cols, parametric_lag_hess_vals)
+    lag_jac_params = (; lag_jac_rows, lag_jac_cols, parametric_lag_jac_vals)
 
     ParametricTrajectoryOptimizationProblem(;
         horizon,
@@ -227,6 +245,7 @@ function ParametricTrajectoryOptimizationProblem(
         jac_params,
         cost_hess,
         lag_hess_primals,
+        lag_jac_params,
     )
 end
 

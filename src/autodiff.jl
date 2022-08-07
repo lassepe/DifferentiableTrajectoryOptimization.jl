@@ -1,7 +1,7 @@
 # TODO: maybe add some caching based on input
 function _solve_pullback(solver, res, problem, x0, params)
     (; lag_hess_rows, lag_hess_cols, parametric_lag_hess_vals) = problem.lag_hess_primals
-    (; cost_jac_rows, cost_jac_cols, parametric_cost_jac_vals) = problem.parametric_cost_jac
+    (; lag_jac_rows, lag_jac_cols, parametric_lag_jac_vals) = problem.lag_jac_params
     (; jac_rows, jac_cols, parametric_jac_vals) = problem.jac_primals
     (; jac_p_rows, jac_p_cols, parametric_jac_p_vals) = problem.jac_params
 
@@ -13,12 +13,28 @@ function _solve_pullback(solver, res, problem, x0, params)
     duals = [equality_duals; inequality_duals]
 
     Qvals = zeros(size(lag_hess_rows, 1))
-    parametric_lag_hess_vals(Qvals, x0, params, primals, duals, 1.0, 1.0)
+    parametric_lag_hess_vals(
+        Qvals,
+        x0,
+        params,
+        primals,
+        duals,
+        1.0,
+        _internal_sign_convention(solver),
+    )
     Q = sparse(lag_hess_rows, lag_hess_cols, Qvals, n, n)
 
-    Rvals = zeros(size(cost_jac_rows, 1))
-    parametric_cost_jac_vals(Rvals, params, primals)
-    R = sparse(cost_jac_rows, cost_jac_cols, Rvals, n, l)
+    Rvals = zeros(size(lag_jac_rows, 1))
+    parametric_lag_jac_vals(
+        Rvals,
+        x0,
+        params,
+        primals,
+        duals,
+        1.0,
+        _internal_sign_convention(solver),
+    )
+    R = sparse(lag_jac_rows, lag_jac_cols, Rvals, n, l)
 
     Avals = zeros(size(jac_rows, 1))
     parametric_jac_vals(Avals, x0, params, primals)
