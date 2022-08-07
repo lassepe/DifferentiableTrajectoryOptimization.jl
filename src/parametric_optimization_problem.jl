@@ -45,7 +45,7 @@ and shold be avoided in tight inner loops. By contrast, repeated solver invokati
 `ParametricTrajectoryOptimizationProblem` for varying parameter values are very fast. Therefore, it
 is a good idea to choose a parameterization that avoids re-construction.
 
-Furthermore, note that the *entire* parameter vector is handed to `costs`, `dyanmics`, and
+Furthermore, note that the *entire* parameter vector is handed to `costs`, `dynamics`, and
 `inequality_constraints`. This allows parameters to be shared between multiple calls. For example,
 a parameter that controlls the collision avoidance radius may apear both in the cost and
 constraints. It's the users responsibility to correctly index into the `params` vector to extract
