@@ -71,8 +71,8 @@ using FiniteDiff: FiniteDiff
                             # In this trivial example, the goal equals the initial position (at the origin).
                             # Thus, we expect the trajectory to be all zeros
                             xs, us, λs = optimizer(x0, trivial_params)
-                            @test all(all(isapprox.(x, 0, atol = 1e-3)) for x in xs)
-                            @test all(all(isapprox.(u, 0, atol = 1e-3)) for u in us)
+                            @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
+                            @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
                             @test all(>=(-1e-9), λs)
                         end
                     end
@@ -106,7 +106,7 @@ using FiniteDiff: FiniteDiff
                                             params = [10 * randn(rng, parameter_dim - 1); δt]
                                             ∇ = Zygote.gradient(f, params) |> only
                                             ∇_fd = FiniteDiff.finite_difference_gradient(f, params)
-                                            isapprox(∇, ∇_fd; atol = 1e-3, rtol = 1e-2)
+                                            isapprox(∇, ∇_fd; atol = 1e-3)
                                         end
                                     end
                                 end
