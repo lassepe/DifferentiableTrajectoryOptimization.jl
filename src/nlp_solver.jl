@@ -50,7 +50,16 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
             rows .= lag_hess_rows
             cols .= lag_hess_cols
         else
-            parametric_lag_hess_vals(values, x0, params, primals, λ, α, -1)
+            parametric_lag_hess_vals(
+                values,
+                x0,
+                params,
+                primals,
+                λ,
+                α,
+                # IPOPT has a flipped internal sign convention
+                -1.0,
+            )
         end
         nothing
     end
@@ -88,7 +97,7 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
 
     (;
         primals = prob.x,
-        equality_duals = prob.mult_g[1:(problem.num_equality)],
+        equality_duals = -prob.mult_g[1:(problem.num_equality)],
         inequality_duals = -prob.mult_g[(problem.num_equality + 1):end],
     )
 end

@@ -61,7 +61,7 @@ function solve(::QPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
 
     (;
         primals = results.x,
-        equality_duals = results.y[1:(problem.num_equality)],
+        equality_duals = -results.y[1:(problem.num_equality)],
         inequality_duals = -results.y[(problem.num_equality + 1):end],
     )
 end

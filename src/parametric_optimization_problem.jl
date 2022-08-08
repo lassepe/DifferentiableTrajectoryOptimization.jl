@@ -14,8 +14,9 @@ Constructs a `ParametricTrajectoryOptimizationProblem` from the given problem da
 - `cost` is callable as `cost(xs, us, params) -> c` to compute objective value for a given \
 sequence of states `xs` and control inputs `us` for a parameter vector `params`.
 
-- `dynamics` is callable as `dynamics(x, u, t) -> xp` to generate the next state `xp` from the \
-previous state `x`, control `u`, and time `t`.
+- `dynamics` is callable as `dynamics(x, u, t [, params]) -> xp` to generate the next state `xp` \
+from the previous state `x`, control `u`, time `t` and optional parameters `params`.  See \
+`parameterize_dynamics` for toggling the optional parameter vector.
 
 - `inequality_constraints` is callable as `inequality_constraints(xs, us, params) -> gs` to \
 generate a vector of constraints `gs` from states `xs` and `us` where the layout and types of `xs` \
@@ -29,16 +30,26 @@ no inequality constraints, set `inequality_constraints = (xs, us, params) -> Sym
 
 - `horizon::Integer` is the horizon of the problem
 
+- `parameterize_dynamics` controls the optional `params` argument handed to dynamics. This flag is \
+disabled by default. When set to `true`, `dynamics` are called as `dynamics(x, u, t, params)`
+instead of `dynamics(x, u, t)`. Note that *all* parameters are handed to the dynamics call
+
 # Note
 
 This function uses `Syombolics.jl` to compile all of the functions, gradients, jacobians, and
 hessians needed to solve a parametric trajectory optimization problem. Therfore, all callables above
 must be sufficiently generic to accept `Syombolics.Num`-valued arguments.
 
-Since the setup procedure invovles code-generation, calls to this contructor are rather expensive
+Since the setup procedure involves code-generation, calls to this contructor are rather expensive
 and shold be avoided in tight inner loops. By contrast, repeated solver invokations on the same
 `ParametricTrajectoryOptimizationProblem` for varying parameter values are very fast. Therefore, it
 is a good idea to choose a parameterization that avoids re-construction.
+
+Furthermore, note that the *entire* parameter vector is handed to `costs`, `dynamics`, and
+`inequality_constraints`. This allows parameters to be shared between multiple calls. For example,
+a parameter that controlls the collision avoidance radius may apear both in the cost and
+constraints. It's the users responsibility to correctly index into the `params` vector to extract
+the desired parameters for each call.
 
 # Example
 
@@ -71,7 +82,7 @@ problem = ParametricTrajectoryOptimizationProblem(
 )
 ```
 """
-Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8}
+Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,T8,T9}
     # https://github.com/JuliaLang/julia/issues/31231
     horizon::Int
     n::Int
@@ -88,6 +99,7 @@ Base.@kwdef struct ParametricTrajectoryOptimizationProblem{T1,T2,T3,T4,T5,T6,T7,
     jac_params::T6
     cost_hess::T7
     lag_hess_primals::T8
+    lag_jac_params::T9
 end
 
 function ParametricTrajectoryOptimizationProblem(
@@ -97,7 +109,8 @@ function ParametricTrajectoryOptimizationProblem(
     state_dim,
     control_dim,
     parameter_dim,
-    horizon,
+    horizon;
+    parameterize_dynamics = false,
 )
     n = horizon * (state_dim + control_dim)
     num_equality = nx = horizon * state_dim
@@ -117,8 +130,9 @@ function ParametricTrajectoryOptimizationProblem(
     constraints_val = Symbolics.Num[]
     # NOTE: The dynamics constraints **must** always be first since the backward pass exploits this
     # structure to more easily identify active constraints.
+    dynamics_parameterized = parameterize_dynamics ? dynamics : (x, u, t, _) -> dynamics(x, u, t)
     for t in eachindex(us)
-        append!(constraints_val, dynamics(xs[t], us[t], t) .- xs[t + 1])
+        append!(constraints_val, dynamics_parameterized(xs[t], us[t], t, p) .- xs[t + 1])
     end
     append!(constraints_val, inequality_constraints(xs[2:end], us, p))
 
@@ -136,10 +150,13 @@ function ParametricTrajectoryOptimizationProblem(
         @variables(λ[1:num_constraints], cost_scaling, constraint_penalty_scaling) .|> scalarize
     end
     lag = cost_scaling * cost_val - constraint_penalty_scaling * λ' * constraints_val
+    lag_grad = Symbolics.gradient(lag, z)
 
-    lag_hess = Symbolics.sparsejacobian(Symbolics.gradient(lag, z), z)
+    lag_hess = Symbolics.sparsejacobian(lag_grad, z)
+    lag_jac = Symbolics.sparsejacobian(lag_grad, p)
     expression = Val{false}
     (lag_hess_rows, lag_hess_cols, hess_vals) = findnz(lag_hess)
+    (lag_jac_rows, lag_jac_cols, lag_jac_vals) = findnz(lag_jac)
 
     parametric_cost = let
         cost_fn = Symbolics.build_function(cost_val, [p; z]; expression)
@@ -193,10 +210,24 @@ function ParametricTrajectoryOptimizationProblem(
             )
     end
 
+    parametric_lag_jac_vals = let
+        ∇lac_jac_vals_fn! = Symbolics.build_function(
+            lag_jac_vals,
+            vcat(x0, p, z, λ, cost_scaling, constraint_penalty_scaling);
+            expression,
+        )[2]
+        (vals, x0, params, primals, duals, cost_scaling, constraint_penalty_scaling) ->
+            ∇lac_jac_vals_fn!(
+                vals,
+                vcat(x0, params, primals, duals, cost_scaling, constraint_penalty_scaling),
+            )
+    end
+
     parametric_cost_jac = (; cost_jac_rows, cost_jac_cols, parametric_cost_jac_vals)
     jac_primals = (; jac_rows, jac_cols, parametric_jac_vals)
     jac_params = (; jac_p_rows, jac_p_cols, parametric_jac_p_vals)
     lag_hess_primals = (; lag_hess_rows, lag_hess_cols, parametric_lag_hess_vals)
+    lag_jac_params = (; lag_jac_rows, lag_jac_cols, parametric_lag_jac_vals)
 
     ParametricTrajectoryOptimizationProblem(;
         horizon,
@@ -214,6 +245,7 @@ function ParametricTrajectoryOptimizationProblem(
         jac_params,
         cost_hess,
         lag_hess_primals,
+        lag_jac_params,
     )
 end
 
