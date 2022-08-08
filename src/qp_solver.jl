@@ -55,8 +55,7 @@ function solve(::QPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
     OSQP.setup!(m; P = sparse(Q), q = q, A = A, l = lb, u = ub, verbose = false, polish = true)
     results = OSQP.solve!(m)
     if (results.info.status_val != 1)
-        println("ERROR IN QP SOLVE")
-        println(results.info.status)
+        @warn "QP not cleanly solved. OSQP status is $(results.info.status_val)"
     end
 
     (;
