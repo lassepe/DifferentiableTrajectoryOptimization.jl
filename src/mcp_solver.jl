@@ -94,6 +94,10 @@ function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:Abstract
 
     status, variables, info = PATHSolver.solve_mcp(F, J, lb, ub, z; silent = true, nnz)
 
+    if status != PATHSolver.MCP_Solved
+        @warn "MCP not cleanly solved. PATH solver status is $(status)"
+    end
+
     (;
         primals = variables[1:(problem.n)],
         equality_duals = variables[((problem.n + 1):(problem.n + problem.num_equality))],

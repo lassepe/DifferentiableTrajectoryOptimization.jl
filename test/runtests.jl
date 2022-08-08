@@ -5,7 +5,7 @@ using DifferentiableTrajectoryOptimization:
     QPSolver,
     MCPSolver,
     parameter_dimension
-using Test: @testset, @test
+using Test: @testset, @test, @test_logs
 using Zygote: Zygote
 using Random: MersenneTwister
 using FiniteDiff: FiniteDiff
@@ -74,6 +74,13 @@ using FiniteDiff: FiniteDiff
                             @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
                             @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
                             @test all(>=(-1e-9), λs)
+                        end
+
+                        @testset "infeasible trajectory qp" begin
+                            x0_infeasible = [10.0, 10.0]
+                            @test_logs (:warn,) begin
+                                xs, us, λs = optimizer(x0_infeasible, trivial_params)
+                            end
                         end
                     end
 

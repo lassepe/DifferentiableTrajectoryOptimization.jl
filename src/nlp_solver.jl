@@ -95,6 +95,10 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
     Ipopt.AddIpoptIntOption(prob, "print_level", 0)
     status = Ipopt.IpoptSolve(prob)
 
+    if status != 0
+        @warn "MCP not cleanly solved. IPOPT status is $(status)."
+    end
+
     (;
         primals = prob.x,
         equality_duals = -prob.mult_g[1:(problem.num_equality)],
