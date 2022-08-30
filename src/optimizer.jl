@@ -48,11 +48,11 @@ params = zeros(20)
 solution = optimizer(x0, params)
 ```
 """
-function (optimizer::Optimizer)(x0, params)
+function (optimizer::Optimizer)(x0, params; initial_guess = nothing)
     @assert length(x0) == optimizer.problem.state_dim
-    sol = solve(optimizer.solver, optimizer.problem, x0, params)
+    sol = solve(optimizer.solver, optimizer.problem, x0, params; initial_guess)
     (; horizon, state_dim, control_dim) = optimizer.problem
     xs = [[x0]; collect.(eachcol(reshape(sol.primals[1:(horizon * state_dim)], state_dim, :)))]
     us = collect.(eachcol(reshape(sol.primals[((horizon * state_dim) + 1):end], control_dim, :)))
-    (; xs, us, λs = sol.inequality_duals)
+    (; xs, us, λs = sol.inequality_duals, variables = sol.variables)
 end
