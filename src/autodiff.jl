@@ -62,8 +62,8 @@ function _solve_pullback(solver, res, problem, x0, params)
     (; ∂x∂y, ∂duals∂y)
 end
 
-function ChainRulesCore.rrule(::typeof(solve), solver, problem, x0, params)
-    res = solve(solver, problem, x0, params)
+function ChainRulesCore.rrule(::typeof(solve), solver, problem, x0, params; kwargs...)
+    res = solve(solver, problem, x0, params; kwargs...)
     project_y = ProjectTo(params)
 
     _back = _solve_pullback(solver, res, problem, x0, params)
@@ -86,12 +86,12 @@ function ChainRulesCore.rrule(::typeof(solve), solver, problem, x0, params)
     res, solve_pullback
 end
 
-function solve(solver, problem, x0, params::AbstractVector{<:ForwardDiff.Dual{T}}) where {T}
+function solve(solver, problem, x0, params::AbstractVector{<:ForwardDiff.Dual{T}}; kwargs...) where {T}
     # strip off the duals:
     params_v = ForwardDiff.value.(params)
     params_d = ForwardDiff.partials.(params)
     # forward pass
-    res = solve(solver, problem, x0, params_v)
+    res = solve(solver, problem, x0, params_v; kwargs...)
     # backward pass
     _back = _solve_pullback(solver, res, problem, x0, params_v)
 
@@ -104,5 +104,6 @@ function solve(solver, problem, x0, params::AbstractVector{<:ForwardDiff.Dual{T}
         # we don't need these so I'm just creating a non-dual result size here
         res.equality_duals,
         inequality_duals = ForwardDiff.Dual{T}.(res.inequality_duals, ∂inequality_duals),
+        info = (; raw_solution = res.variables)
     )
 end

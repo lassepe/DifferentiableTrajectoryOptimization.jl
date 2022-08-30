@@ -103,6 +103,6 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
         primals = prob.x,
         equality_duals = -prob.mult_g[1:(problem.num_equality)],
         inequality_duals = -prob.mult_g[(problem.num_equality + 1):end],
-        variables = nothing,
+        info = (; raw_solution = nothing),
     )
 end

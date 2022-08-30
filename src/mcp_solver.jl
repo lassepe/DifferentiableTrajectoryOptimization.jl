@@ -103,7 +103,7 @@ function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:Abstract
         primals = variables[1:(problem.n)],
         equality_duals = variables[((problem.n + 1):(problem.n + problem.num_equality))],
         inequality_duals = variables[(problem.n + problem.num_equality + 1):end],
-        variables,
+        info = (; raw_solution = variables),
     )
 end
 
