@@ -104,6 +104,6 @@ function solve(solver, problem, x0, params::AbstractVector{<:ForwardDiff.Dual{T}
         # we don't need these so I'm just creating a non-dual result size here
         res.equality_duals,
         inequality_duals = ForwardDiff.Dual{T}.(res.inequality_duals, ∂inequality_duals),
-        info = (; raw_solution = res.variables)
+        info = res.info
     )
 end
