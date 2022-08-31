@@ -39,6 +39,8 @@ The output of this function is layed out as `(; xs, us, λs)` with
 - `us::Vector{<:Vector}`: Vector over time of vector-valued inputs.
 - `λ::Vector`: Vector of scalar inequlaity-constraint multipliers. \
    By our sign convention, all inequality duals are non-negative.
+- `info::NamedTuple`: Additional "low-level" information. \
+   !!Note that this info output field is not differentiable!
 
 # Example
 
