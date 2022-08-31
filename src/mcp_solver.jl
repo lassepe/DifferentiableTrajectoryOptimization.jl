@@ -18,7 +18,13 @@ this backend only works for small problems. Please consult the documentation of
 struct MCPSolver end
 is_thread_safe(::MCPSolver) = false
 
-function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:AbstractFloat}; initial_guess = nothing)
+function solve(
+    solver::MCPSolver,
+    problem,
+    x0,
+    params::AbstractVector{<:AbstractFloat};
+    initial_guess = nothing,
+)
     (; n, parametric_cost, parametric_cost_grad, parametric_cons, jac_primals, lag_hess_primals) =
         problem
     (; jac_rows, jac_cols, parametric_jac_vals) = jac_primals
@@ -87,9 +93,7 @@ function solve(solver::MCPSolver, problem, x0, params::AbstractVector{<:Abstract
         zeros(problem.num_inequality)
     ]
     ub = fill(Inf, length(lb))
-    
     z = !isnothing(initial_guess) ? initial_guess : zero(lb)
-
     # structual zeros: nnz(J)) = nnz(Q) + 2*nnz(A)
     nnz = length(lag_hess_rows) + 2 * length(jac_rows)
 

@@ -9,7 +9,13 @@ For many problems the [`MCPSolver`](@ref) backend using PATH is *much* faster.
 struct NLPSolver end
 is_thread_safe(::NLPSolver) = true
 
-function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat}; initial_guess = nothing)
+function solve(
+    solver::NLPSolver,
+    problem,
+    x0,
+    params::AbstractVector{<:AbstractFloat};
+    initial_guess = nothing,
+)
     (;
         horizon,
         n,

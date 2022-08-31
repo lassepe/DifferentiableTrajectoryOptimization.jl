@@ -23,7 +23,13 @@ Additionally provides gradients ∇_y QP(y)
 Q, R, A, and B should be sparse matrices of type SparseMatrixCSC.
 q, a, and y should be of type Vector{Float64}.
 """
-function solve(::QPSolver, problem, x0, params::AbstractVector{<:AbstractFloat}; initial_guess = nothing)
+function solve(
+    ::QPSolver,
+    problem,
+    x0,
+    params::AbstractVector{<:AbstractFloat};
+    initial_guess = nothing,
+)
     (; cost_hess_rows, cost_hess_cols, parametric_cost_hess_vals) = problem.cost_hess
     (; jac_rows, jac_cols, parametric_jac_vals) = problem.jac_primals
 
@@ -53,7 +59,7 @@ function solve(::QPSolver, problem, x0, params::AbstractVector{<:AbstractFloat};
 
     m = OSQP.Model()
     OSQP.setup!(m; P = sparse(Q), q = q, A = A, l = lb, u = ub, verbose = false, polish = true)
-    
+
     if !isnothing(initial_guess)
         OSQP.warm_start!(m; x = initial_guess.x, y = initial_guess.y)
     end
