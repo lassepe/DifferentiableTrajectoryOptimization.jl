@@ -9,7 +9,13 @@ For many problems the [`MCPSolver`](@ref) backend using PATH is *much* faster.
 struct NLPSolver end
 is_thread_safe(::NLPSolver) = true
 
-function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:AbstractFloat})
+function solve(
+    solver::NLPSolver,
+    problem,
+    x0,
+    params::AbstractVector{<:AbstractFloat};
+    initial_guess = nothing,
+)
     (;
         horizon,
         n,
@@ -103,5 +109,6 @@ function solve(solver::NLPSolver, problem, x0, params::AbstractVector{<:Abstract
         primals = prob.x,
         equality_duals = -prob.mult_g[1:(problem.num_equality)],
         inequality_duals = -prob.mult_g[(problem.num_equality + 1):end],
+        info = (; raw_solution = prob),
     )
 end

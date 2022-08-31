@@ -70,7 +70,13 @@ using FiniteDiff: FiniteDiff
                         @testset "trivial trajectory qp" begin
                             # In this trivial example, the goal equals the initial position (at the origin).
                             # Thus, we expect the trajectory to be all zeros
-                            xs, us, λs = optimizer(x0, trivial_params)
+                            xs, us, λs, info = optimizer(x0, trivial_params)
+                            @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
+                            @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
+                            @test all(>=(-1e-9), λs)
+                            # test warm-start
+                            xs, us, λs, info =
+                                optimizer(x0, trivial_params; initial_guess = info.raw_solution)
                             @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
                             @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
                             @test all(>=(-1e-9), λs)
