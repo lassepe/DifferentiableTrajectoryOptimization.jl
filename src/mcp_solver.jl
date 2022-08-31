@@ -107,7 +107,7 @@ function solve(
         primals = variables[1:(problem.n)],
         equality_duals = variables[((problem.n + 1):(problem.n + problem.num_equality))],
         inequality_duals = variables[(problem.n + problem.num_equality + 1):end],
-        info = (; raw_solution = variables),
+        info = (; raw_solution = variables, status),
     )
 end
 
