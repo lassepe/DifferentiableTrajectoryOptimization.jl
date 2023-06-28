@@ -44,7 +44,7 @@ The entry-point for getting started with this package is to set up you problem o
 
 
 ```julia
-using DifferentiableTrajectoryOptimization as Dito
+using DifferentiableTrajectoryOptimization
 
 horizon = 10
 state_dim = control_dim = parameter_dim = 2
@@ -97,8 +97,31 @@ Given an optimizer, we can solve a problem instance for a given initial state `x
 ```julia
 x0 = zeros(state_dim)
 params = randn(2)
-optimizer(x0, params)
+# the solution has fields for
+# `xs`:   the state sequence
+# `us`:   the control sequence
+# `λs`:   the constriant multipliers
+# `info`: additional "low-level" solver info
+(; xs, us, λs, info) = solution = optimizer(x0, params)
 ```
+
+### 4. Computing Gradients
+
+Since we provide gradient rules for the `optimizer(x0, params)` call, you can directly differentiate through it using your favorite autodiff framework. Here is a toy example of how this could look like:
+
+```julia
+using Zygote: Zygote
+
+# an objective function that maps from parameters to a scalar performance index
+function objective(params)
+    (; xs, λs) = optimizer(x0, params)
+    sum(sum(x .^ 2) for x in xs) + sum(sum(λ .^ 2) for λ in λs)
+end
+
+# the gradient of `objective` evalauted at the randomly sampled params from step 3 above
+Zygote.gradient(objective, params)
+```
+
 
 ## Background
 

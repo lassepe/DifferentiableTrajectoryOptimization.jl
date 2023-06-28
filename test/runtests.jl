@@ -16,7 +16,7 @@ using FiniteDiff: FiniteDiff
     horizon = 10
     state_dim = 2
     control_dim = 2
-    dynamics = function (x, u, t, params = 0.01)
+    dynamics = function (x, u, t, params=0.01)
         local δt = last(params)
         x + δt * u
     end
@@ -39,7 +39,7 @@ using FiniteDiff: FiniteDiff
 
     function input_reference_cost(xs, us, params)
         regularization = 10
-        input_reference = reshape(params[1:(2 * length(us))], 2, :) |> eachcol
+        input_reference = reshape(params[1:(2*length(us))], 2, :) |> eachcol
         sum(zip(us, input_reference)) do (u, r)
             sum(0.5 .* regularization .* u .^ 2 .- u .* r)
         end
@@ -61,7 +61,7 @@ using FiniteDiff: FiniteDiff
                             control_dim,
                             parameter_dim,
                             horizon;
-                            parameterize_dynamics = true,
+                            parameterize_dynamics=true
                         )
                         Optimizer(problem, solver)
                     end
@@ -71,14 +71,14 @@ using FiniteDiff: FiniteDiff
                             # In this trivial example, the goal equals the initial position (at the origin).
                             # Thus, we expect the trajectory to be all zeros
                             xs, us, λs, info = optimizer(x0, trivial_params)
-                            @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
-                            @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
+                            @test all(all(isapprox.(x, 0, atol=1e-9)) for x in xs)
+                            @test all(all(isapprox.(u, 0, atol=1e-9)) for u in us)
                             @test all(>=(-1e-9), λs)
                             # test warm-start
                             xs, us, λs, info =
-                                optimizer(x0, trivial_params; initial_guess = info.raw_solution)
-                            @test all(all(isapprox.(x, 0, atol = 1e-9)) for x in xs)
-                            @test all(all(isapprox.(u, 0, atol = 1e-9)) for u in us)
+                                optimizer(x0, trivial_params; initial_guess=info.raw_solution)
+                            @test all(all(isapprox.(x, 0, atol=1e-9)) for x in xs)
+                            @test all(all(isapprox.(u, 0, atol=1e-9)) for u in us)
                             @test all(>=(-1e-9), λs)
                         end
 
@@ -94,7 +94,7 @@ using FiniteDiff: FiniteDiff
                         function objective(params)
                             xs, us, λs = optimizer(x0, params)
                             sum(sum(x .^ 2) for x in xs) + sum(sum(λ .^ 2) for λ in λs)
-                        end,
+                        end
                         for (mode, f) in [
                             ("reverse mode", objective),
                             ("forward mode", params -> Zygote.forwarddiff(objective, params)),
@@ -107,7 +107,7 @@ using FiniteDiff: FiniteDiff
                                         isapprox.(
                                             only(Zygote.gradient(f, trivial_params)),
                                             0,
-                                            atol = 1e-9,
+                                            atol=1e-9,
                                         ),
                                     )
                                 end
@@ -119,7 +119,7 @@ using FiniteDiff: FiniteDiff
                                             params = [10 * randn(rng, parameter_dim - 1); δt]
                                             ∇ = Zygote.gradient(f, params) |> only
                                             ∇_fd = FiniteDiff.finite_difference_gradient(f, params)
-                                            isapprox(∇, ∇_fd; atol = 1e-3)
+                                            isapprox(∇, ∇_fd; atol=1e-3)
                                         end
                                     end
                                 end
