@@ -18,7 +18,16 @@ As such, Dito algorithmically provides a (local) answer to the question:
 
 > *"How does the optimal solution of an inequality constrained trajectory optimization problem change if the problem changes?"*.
 
-This implementation was initially developed as part of our research on [Learning Mixed Strategies in Trajectory Games](https://arxiv.org/pdf/2205.00291.pdf).
+This implementation was originally developed as part of our research on [Learning Mixed Strategies in Trajectory Games](https://arxiv.org/pdf/2205.00291.pdf):
+```bibtex
+@inproceedings{peters2022rss,
+    title     = {Learning Mixed Strategies in Trajectory Games},
+    author    = {Peters, Lasse and Fridovich-Keil, David and Ferranti, Laura and Stachniss, Cyrill and Alonso-Mora, Javier and Laine, Forrest},
+    booktitle = {Proc.~of Robotics: Science and Systems (RSS)},
+    year      = {2022},
+    url       = {https://arxiv.org/abs/2205.00291}
+}
+```
 There, Dito allowed us to efficiently train a neural network pipeline that rapidly generate feasible equilibrium trajectories in multi-player non-cooperative dynamic games.
 Since this component has proven to be very useful in that context, we have since decided to factor it out into a stand-alone package.
 
