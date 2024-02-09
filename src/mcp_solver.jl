@@ -99,7 +99,9 @@ function solve(
 
     status, variables, info = PATHSolver.solve_mcp(F, J, lb, ub, z; silent = true, nnz)
 
-    if status != PATHSolver.MCP_Solved
+    if status === PATHSolver.MCP_UserInterrupt
+        throw(InterruptException())
+    elseif status != PATHSolver.MCP_Solved
         @warn "MCP not cleanly solved. PATH solver status is $(status)"
     end
 
