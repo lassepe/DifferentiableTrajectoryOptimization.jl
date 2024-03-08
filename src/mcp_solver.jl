@@ -15,7 +15,10 @@ The PATH solver is not open source but provides a free license. Without setting 
 this backend only works for small problems. Please consult the documentation of
 [PATHSolver.jl](https://github.com/chkwon/PATHSolver.jl) to learn about loading the license key.
 """
-struct MCPSolver end
+@kwdef struct MCPSolver{T<:NamedTuple}
+    options::T = NamedTuple()
+end
+
 is_thread_safe(::MCPSolver) = false
 
 function solve(
@@ -24,6 +27,7 @@ function solve(
     x0,
     params::AbstractVector{<:AbstractFloat};
     initial_guess = nothing,
+    options = NamedTuple(),
 )
     (; n, parametric_cost, parametric_cost_grad, parametric_cons, jac_primals, lag_hess_primals) =
         problem
@@ -97,7 +101,8 @@ function solve(
     # structual zeros: nnz(J)) = nnz(Q) + 2*nnz(A)
     nnz = length(lag_hess_rows) + 2 * length(jac_rows)
 
-    status, variables, info = PATHSolver.solve_mcp(F, J, lb, ub, z; silent = true, nnz)
+    solve_kwargs = (; silent = true, nnz, solver.options..., options...)
+    status, variables, info = PATHSolver.solve_mcp(F, J, lb, ub, z; solve_kwargs...)
 
     if status === PATHSolver.MCP_UserInterrupt
         throw(InterruptException())
