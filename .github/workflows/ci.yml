@@ -5,7 +5,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia_version: ["1.7", "1"]
+        julia_version: ["1.10", "1"]
     name: julia ${{ matrix.julia_version }}
     runs-on: ubuntu-latest
     steps:
