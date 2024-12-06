@@ -22,4 +22,3 @@ jobs:
           file: ./lcov.info
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: true
