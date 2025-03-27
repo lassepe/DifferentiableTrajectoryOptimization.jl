@@ -15,7 +15,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
 ChainRulesCore = "1"
-ForwardDiff = "0.10"
+ForwardDiff = "0.10, 1"
 Ipopt = "0.9, 1"
 OSQP = "0.7, 0.8"
 PATHSolver = "1.2"
