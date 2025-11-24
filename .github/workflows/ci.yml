@@ -9,7 +9,7 @@ jobs:
     name: julia ${{ matrix.julia_version }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia_version }}
